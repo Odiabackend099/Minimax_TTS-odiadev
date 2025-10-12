@@ -91,6 +91,12 @@ class MinimaxClient:
         }
         
         try:
+            # Debug logging
+            print(f"[DEBUG] MiniMax URL: {url}")
+            print(f"[DEBUG] API Key (first 50 chars): {self.api_key[:50]}...")
+            print(f"[DEBUG] Group ID: {self.group_id}")
+            print(f"[DEBUG] Headers: {headers}")
+            
             response = requests.post(url, headers=headers, json=payload, timeout=timeout)
             
             # Check HTTP status
