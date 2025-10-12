@@ -1,0 +1,15 @@
+{
+  "name": "minimax-tts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Minimax TTS API integration",
+  "main": "minimax_tts.js",
+  "scripts": {
+    "start": "node minimax_tts.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0"
+  }
+}

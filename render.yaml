@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: odeadev-ai-tts
+    runtime: docker
+    plan: starter  # or free for testing
+    region: oregon  # or your preferred region
+    healthCheckPath: /health
+    envVars:
+      - key: MINIMAX_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: MINIMAX_GROUP_ID
+        sync: false  # Set manually in Render dashboard
+      - key: DATABASE_URL
+        value: sqlite:////data/odeadev_tts.db
+      - key: PORT
+        value: 8000
+      - key: HOST
+        value: 0.0.0.0
+      - key: ENFORCE_AUTH
+        value: true  # Set to false for testing without auth
+      - key: SECRET_KEY
+        generateValue: true  # Auto-generate secure secret
+      - key: LOG_LEVEL
+        value: INFO
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

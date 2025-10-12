@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  odeadev-tts:
+    build: .
+    container_name: odeadev-ai-tts
+    ports:
+      - "8000:8000"
+    environment:
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - MINIMAX_GROUP_ID=${MINIMAX_GROUP_ID}
+      - DATABASE_URL=sqlite:////data/odeadev_tts.db
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
+      - LOG_LEVEL=INFO
+    volumes:
+      # Mount data directory for persistent database
+      - ./data:/data
+      # Mount source for development (remove for production)
+      - ./src:/app/src
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# Optional: Add PostgreSQL for production
+#  db:
+#    image: postgres:15-alpine
+#    container_name: odeadev-tts-db
+#    environment:
+#      - POSTGRES_USER=odeadev
+#      - POSTGRES_PASSWORD=${DB_PASSWORD}
+#      - POSTGRES_DB=odeadev_tts
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
+#    restart: unless-stopped
+
+#volumes:
+#  postgres_data:
