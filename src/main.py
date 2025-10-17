@@ -26,9 +26,9 @@ from .minimax_client import MinimaxClient, MinimaxAPIError
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="OdeaDev‑AI‑TTS",
-    version="0.1.0",
-    description="Production TTS service wrapping MiniMax API with authentication, quotas, and billing"
+    title="ODIADEV AI TTS",
+    version="1.0.0",
+    description="Production-ready TTS service with verified voice characteristics, authentication, quotas, and billing"
 ) if FastAPI else None
 
 if app:
@@ -184,7 +184,13 @@ if app:
         user: User = Depends(get_current_user)
     ):
         """
-        Generate speech from text using MiniMax API.
+        Generate speech from text using verified ODIADEV AI TTS voices.
+        
+        Available voices:
+        - american-female: Professional American female voice
+        - american-male: Marcus American male voice (authoritative)
+        - nigerian-female: Ezinne Nigerian female voice (professional)
+        - nigerian-male: Odia Nigerian male voice (authoritative)
         
         Requires valid API key in Authorization header.
         """

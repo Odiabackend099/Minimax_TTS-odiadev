@@ -13,30 +13,38 @@ def init_database():
 
 
 def seed_default_voices(db_session):
-    """Seed database with default MiniMax voices."""
+    """Seed database with verified ODIADEV TTS voices."""
     default_voices = [
         {
-            "friendly_name": "nigerian-male",
-            "minimax_voice_id": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
-            "language": "en-NG",
-            "gender": Gender.MALE,
-            "description": "Nigerian male voice with natural accent",
+            "friendly_name": "american-female",
+            "minimax_voice_id": "moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a",
+            "language": "en-US",
+            "gender": Gender.FEMALE,
+            "description": "American female voice with professional, neutral tone - verified for production use",
             "is_cloned": False,
         },
         {
             "friendly_name": "american-male",
-            "minimax_voice_id": "male-qn-qingse",
+            "minimax_voice_id": "moss_audio_a59cd561-ab87-11f0-a74c-2a7a0b4baedc",
             "language": "en-US",
             "gender": Gender.MALE,
-            "description": "American male voice, clear and professional",
+            "description": "Marcus American male voice with confident, neutral tone - verified for production use",
             "is_cloned": False,
         },
         {
-            "friendly_name": "british-female",
-            "minimax_voice_id": "female-shaonv",
-            "language": "en-GB",
+            "friendly_name": "nigerian-female",
+            "minimax_voice_id": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
+            "language": "en-NG",
             "gender": Gender.FEMALE,
-            "description": "British female voice, warm and friendly",
+            "description": "Ezinne Nigerian female voice with professional, neutral tone - verified for production use",
+            "is_cloned": False,
+        },
+        {
+            "friendly_name": "nigerian-male",
+            "minimax_voice_id": "moss_audio_4e6eb029-ab89-11f0-a74c-2a7a0b4baedc",
+            "language": "en-NG",
+            "gender": Gender.MALE,
+            "description": "Odia Nigerian male voice with strong, authoritative tone - verified for production use",
             "is_cloned": False,
         },
     ]

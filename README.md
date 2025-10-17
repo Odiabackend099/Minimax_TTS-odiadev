@@ -1,8 +1,8 @@
-# MiniMax TTS - Production Voice Showcase
+# ODIADEV AI TTS - Production Voice System
 
-## 🎯 **Production-Ready Voice System**
+## 🎯 **Production-Ready Voice Infrastructure**
 
-This project provides a complete voice showcase using **verified voice characteristics** from the MiniMax TTS API. All voices have been tested and confirmed for production use.
+This project provides a complete TTS service with **verified voice characteristics** from the MiniMax TTS API. All voices have been tested and confirmed for production use.
 
 ---
 
@@ -83,12 +83,12 @@ const response = await axios.post(
 ```
 
 ### **Voice Selection Guide**
-- **Business Communications**: American Female, Marcus American Male
-- **Customer Service**: American Female (Warm & Friendly)
-- **Technical Documentation**: Marcus American Male (Technical)
-- **Nigerian Market**: Ezinne Nigerian Female, Odia Nigerian Male
-- **Narrative Content**: Odia Nigerian Male (Narrative)
-- **Conversational**: Ezinne Nigerian Female (Conversational)
+- **Business Communications**: american-female, american-male
+- **Customer Service**: american-female (warm & friendly tone)
+- **Technical Documentation**: american-male (authoritative tone)
+- **Nigerian Market**: nigerian-female, nigerian-male
+- **Narrative Content**: nigerian-male (authoritative tone)
+- **Conversational**: nigerian-female (professional tone)
 
 ---
 
@@ -100,6 +100,8 @@ const response = await axios.post(
    - `MINIMAX_API_KEY`
    - `MINIMAX_GROUP_ID`
 3. Deploy automatically on push
+
+**Live Service**: https://minimax-tts-odiadev.onrender.com
 
 ### **Docker Deployment**
 ```bash
