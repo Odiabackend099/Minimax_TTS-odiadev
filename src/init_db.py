@@ -61,7 +61,13 @@ def seed_default_voices(db_session):
             db_session.add(voice)
             print(f"  ✅ Added voice: {voice_data['friendly_name']}")
         else:
-            print(f"  ⏭️  Voice already exists: {voice_data['friendly_name']}")
+            # Update existing voice with new data
+            existing.minimax_voice_id = voice_data["minimax_voice_id"]
+            existing.language = voice_data["language"]
+            existing.gender = voice_data["gender"]
+            existing.description = voice_data["description"]
+            existing.is_cloned = voice_data["is_cloned"]
+            print(f"  🔄 Updated voice: {voice_data['friendly_name']}")
     
     db_session.commit()
     print("✅ Default voices seeded successfully!")
