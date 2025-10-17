@@ -1,29 +1,53 @@
 services:
   - type: web
-    name: odeadev-ai-tts
-    runtime: docker
-    plan: starter  # or free for testing
-    region: oregon  # or your preferred region
-    healthCheckPath: /health
+    name: odiadev-ai-tts
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m src.main
     envVars:
       - key: MINIMAX_API_KEY
-        sync: false  # Set manually in Render dashboard
+        value: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJPRElBIGJhY2tlbmQiLCJVc2VyTmFtZSI6Ik9ESUEgYmFja2VuZCIsIkFjY291bnQiOiIiLCJTdWJqZWN0SUQiOiIxOTMzNTEwOTg4MDAzMjgzNzUxIiwiUGhvbmUiOiIiLCJHcm91cElEIjoiMTkzMzUxMDk4Nzk5NDg5NTE0MyIsIlBhZ2VOYW1lIjoiIiwiTWFpbCI6Im9kaWFiYWNrZW5kQGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTEwLTEyIDA3OjU0OjM2IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.bNkZV8ocPKShS5gATCWX8P1OrKfkMHK1q8PSBoDYxEBCZsqAhIPj8_7ndN2QEEWjxusGFNHIVBWMj_34P-SSKJ4P-d9Rlsuji7XKZZsja7sJc-zOMRX8lSB_TO7Pn-MErhMID-z7ld7hSihtCeFBuqD_xDwd2g6jIsUFtVlQ8S3SfBHv1PM65Fly9fUAh36BEpEIYhga8E27_x0f26bHBhvMis8WsQthENWXd4lBXu2b5lvrQ64IlPRUBok2dJ4fZViHxnwIcJPRNjxsRW9-EArBowPwFTeTmeAUaPaSv-SdMslJK6jVFb0Y7ULFJUdJAoLJWCYmzphvVGhmbdKVgw
       - key: MINIMAX_GROUP_ID
-        sync: false  # Set manually in Render dashboard
-      - key: DATABASE_URL
-        value: sqlite:////data/odeadev_tts.db
-      - key: PORT
-        value: 8000
-      - key: HOST
-        value: 0.0.0.0
+        value: "1933510987994895143"
+      - key: MINIMAX_MODEL
+        value: speech-02-hd
       - key: ENFORCE_AUTH
-        value: true  # Set to false for testing without auth
-      - key: SECRET_KEY
-        generateValue: true  # Auto-generate secure secret
+        value: "false"
+      - key: ADMIN_API_KEY
+        value: sEhvzZ4v92scr51MPoqHYNJgB9epNFpP
+      - key: API_KEY_1
+        value: sEhvzZ4v92scr51MPoqHYNJgB9epNFpP
+      - key: API_KEY_2
+        value: 5NCxFLlN2zsAgpOBP3CsPKFjXQWBXk7V
+      - key: API_KEY_3
+        value: pVU3NVygYffmj5d6NnGBX7HpNqKaoilZ
+      - key: API_KEY_4
+        value: 9vYoTocJRfF0keQXTziJax8Tu9NUn9Q7
+      - key: API_KEY_5
+        value: Ifw5Y3bOgAGXo9e1qBbf9S1Guagvf3qA
+      - key: API_KEY_6
+        value: xBRRfJdHnDL0TrBu0my8VIdcqwlTzotN
+      - key: API_KEY_7
+        value: MixpetEGGCKJuSlObSfAWbfaFtQ5VwFN
+      - key: API_KEY_8
+        value: bYJochvXIdpVEUVeL1cOF2IXloMOqkOq
+      - key: API_KEY_9
+        value: NYtCJhmB5Nm2MkjICsVwRXSzG7d5uioI
+      - key: API_KEY_10
+        value: T3lbYXOQXLKD0LsSXPcVsysOTTV7dglx
+      - key: SERVICE_NAME
+        value: "ODIADEV AI TTS"
+      - key: SERVICE_VERSION
+        value: "1.0.0"
       - key: LOG_LEVEL
         value: INFO
-    autoDeploy: true
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
+      - key: DEFAULT_VOICE
+        value: american-male
+      - key: DEFAULT_SPEED
+        value: "1.0"
+      - key: DEFAULT_PITCH
+        value: "0"
+      - key: DEFAULT_EMOTION
+        value: neutral
