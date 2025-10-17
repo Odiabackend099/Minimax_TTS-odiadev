@@ -1,0 +1,5 @@
+# API Key 2
+# Generated: 2025-10-17T22:25:03.144854
+# Description: Generated API key 2 for ODIADEV TTS testing
+
+API_KEY=ioMz5ACdNfIcQ7xbR5Zar3XOD1UdNN27

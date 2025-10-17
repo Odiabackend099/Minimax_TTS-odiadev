@@ -1,0 +1,5 @@
+# API Key 8
+# Generated: 2025-10-17T22:25:03.146307
+# Description: Generated API key 8 for ODIADEV TTS testing
+
+API_KEY=2QlyYDNVyDYXUsrOLdlCGJgvvwslQou9
