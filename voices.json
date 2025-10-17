@@ -1,0 +1,65 @@
+{
+  "voices": [
+    {
+      "id": "marcus",
+      "name": "Marcus",
+      "description": "American Male - Professional, authoritative tone for business communications",
+      "minimax_voice_id": "moss_audio_a59cd561-ab87-11f0-a74c-2a7a0b4baedc",
+      "language": "en-US",
+      "gender": "male",
+      "accent": "american",
+      "tone": "professional",
+      "use_cases": ["business", "technical", "authoritative"],
+      "is_active": true,
+      "is_verified": true
+    },
+    {
+      "id": "marcy",
+      "name": "Marcy",
+      "description": "American Female - Clear, professional tone for customer service and communications",
+      "minimax_voice_id": "moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a",
+      "language": "en-US",
+      "gender": "female",
+      "accent": "american",
+      "tone": "professional",
+      "use_cases": ["customer_service", "business", "friendly"],
+      "is_active": true,
+      "is_verified": true
+    },
+    {
+      "id": "austyn",
+      "name": "Austyn",
+      "description": "African Male - Strong, confident tone for leadership and business across Africa",
+      "minimax_voice_id": "moss_audio_4e6eb029-ab89-11f0-a74c-2a7a0b4baedc",
+      "language": "en-NG",
+      "gender": "male",
+      "accent": "nigerian",
+      "tone": "authoritative",
+      "use_cases": ["leadership", "business", "african_market"],
+      "is_active": true,
+      "is_verified": true
+    },
+    {
+      "id": "joslyn",
+      "name": "Joslyn",
+      "description": "African Female - Warm, professional tone for customer service and communications",
+      "minimax_voice_id": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
+      "language": "en-NG",
+      "gender": "female",
+      "accent": "nigerian",
+      "tone": "professional",
+      "use_cases": ["customer_service", "business", "african_market"],
+      "is_active": true,
+      "is_verified": true
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-01-17T22:39:00Z",
+    "total_voices": 4,
+    "verified_voices": 4,
+    "supported_languages": ["en-US", "en-NG"],
+    "supported_genders": ["male", "female"],
+    "supported_accents": ["american", "nigerian"]
+  }
+}
