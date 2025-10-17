@@ -1,0 +1,185 @@
+{
+  "name": "Minimax TTS - WhatsApp Voice Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "whatsapp-trigger",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "whatsapp-minimax-tts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.message.type }}",
+              "value2": "text"
+            }
+          ]
+        }
+      },
+      "id": "filter-text-messages",
+      "name": "Filter Text Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract message details\nconst message = items[0].json.message;\nconst text = message.text.body;\nconst from = message.from;\n\n// Auto-select voice based on region (optional)\nlet voiceId = 'male-qn-qingse'; // Default Chinese male\n\nif (from.startsWith('234')) {\n  voiceId = 'male-qn-qingse'; // Nigerian number - use default\n} else if (from.startsWith('1')) {\n  voiceId = 'male-qn-qingse'; // US number\n} else if (from.startsWith('44')) {\n  voiceId = 'female-shaonv'; // UK number - female voice\n}\n\nreturn [{\n  json: {\n    text: text,\n    from: from,\n    voiceId: voiceId,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "extract-message",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "apiKey",
+              "value": "={{ $env.MINIMAX_API_KEY }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $env.MINIMAX_GROUP_ID }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "={{ $json.voiceId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "model",
+              "value": "speech-02-hd"
+            },
+            {
+              "name": "speed",
+              "value": 1.0
+            },
+            {
+              "name": "emotion",
+              "value": "neutral"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "call-tts-api",
+      "name": "Call Minimax TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 220]
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $node['Extract Message'].json.from }}",
+        "binaryProperty": "data",
+        "additionalFields": {
+          "caption": "🎙️ Here's your voice message powered by Minimax TTS!"
+        }
+      },
+      "id": "send-whatsapp-audio",
+      "name": "Send WhatsApp Audio",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [1050, 220]
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "={{ $json.message.from }}",
+        "text": "❌ Sorry, I can only process text messages. Please send me text to convert to voice!",
+        "additionalFields": {}
+      },
+      "id": "send-error-message",
+      "name": "Send Error Message",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [650, 380]
+    }
+  ],
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter Text Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Text Messages": {
+      "main": [
+        [
+          {
+            "node": "Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message": {
+      "main": [
+        [
+          {
+            "node": "Call Minimax TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Minimax TTS": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,161 @@
+{
+  "name": "Minimax TTS - Basic Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "minimax-tts",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "minimax-tts-webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "apiKey",
+              "value": "={{ $json.body.apiKey || $node[\"Set Variables\"].json[\"MINIMAX_API_KEY\"] }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $json.body.groupId || $node[\"Set Variables\"].json[\"MINIMAX_GROUP_ID\"] }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "={{ $json.body.voiceId || 'male-qn-qingse' }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.body.text }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.body.model || 'speech-02-hd' }}"
+            },
+            {
+              "name": "speed",
+              "value": "={{ $json.body.speed || 1.0 }}"
+            },
+            {
+              "name": "pitch",
+              "value": "={{ $json.body.pitch || 0 }}"
+            },
+            {
+              "name": "emotion",
+              "value": "={{ $json.body.emotion || 'neutral' }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "http-request-tts",
+      "name": "Call Minimax TTS API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Set default credentials\nreturn [{\n  json: {\n    MINIMAX_API_KEY: $env.MINIMAX_API_KEY || 'your-api-key-here',\n    MINIMAX_GROUP_ID: $env.MINIMAX_GROUP_ID || 'your-group-id-here'\n  }\n}];"
+      },
+      "id": "set-variables",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert audio buffer to base64 for response\nconst binaryData = items[0].binary.data;\nconst audioBase64 = binaryData.data;\n\nreturn [{\n  json: {\n    success: true,\n    message: 'Audio generated successfully',\n    audio_base64: audioBase64,\n    format: 'mp3',\n    mimeType: 'audio/mpeg'\n  }\n}];"
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Call Minimax TTS API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Minimax TTS API": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

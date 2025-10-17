@@ -1,0 +1,255 @@
+{
+  "name": "Minimax TTS - Complete Production Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "minimax-tts",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "minimax-tts-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "env-api-key",
+              "name": "MINIMAX_API_KEY",
+              "value": "={{ $env.MINIMAX_API_KEY }}",
+              "type": "string"
+            },
+            {
+              "id": "env-group-id",
+              "name": "MINIMAX_GROUP_ID",
+              "value": "={{ $env.MINIMAX_GROUP_ID }}",
+              "type": "string"
+            },
+            {
+              "id": "default-voice",
+              "name": "DEFAULT_VOICE_ID",
+              "value": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-env-variables",
+      "name": "Set Environment Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.minimaxi.chat/v1/t2a_v2",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "GroupId",
+              "value": "={{ $node['Set Environment Variables'].json.MINIMAX_GROUP_ID }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $node['Set Environment Variables'].json.MINIMAX_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"{{ $json.body.text }}\",\n  \"model\": \"{{ $json.body.model || 'speech-02-hd' }}\",\n  \"voice_setting\": {\n    \"voice_id\": \"{{ $json.body.voiceId || $node['Set Environment Variables'].json.DEFAULT_VOICE_ID }}\",\n    \"speed\": {{ $json.body.speed || 1.0 }},\n    \"pitch\": {{ $json.body.pitch || 0 }},\n    \"emotion\": \"{{ $json.body.emotion || 'neutral' }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "call-minimax-api",
+      "name": "Call Minimax API Directly",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-status-code",
+              "leftValue": "={{ $json.base_resp?.status_code }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-api-response",
+      "name": "Check API Response",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract hex audio and convert to base64\nconst audioHex = $json.data?.audio || $json.audio;\n\nif (!audioHex) {\n  throw new Error('No audio data in response');\n}\n\n// Convert hex to buffer then to base64\nconst audioBuffer = Buffer.from(audioHex, 'hex');\nconst audioBase64 = audioBuffer.toString('base64');\n\n// Get other metadata\nconst duration = $json.data?.audio_duration_ms || 0;\nconst extraInfo = $json.extra_info || {};\n\nreturn [{\n  json: {\n    success: true,\n    message: 'Audio generated successfully with Minimax TTS',\n    audio_base64: audioBase64,\n    format: 'mp3',\n    mimeType: 'audio/mpeg',\n    duration_ms: duration,\n    voice_id: extraInfo.voice_id || 'unknown',\n    timestamp: new Date().toISOString()\n  },\n  binary: {\n    data: {\n      data: audioBase64,\n      mimeType: 'audio/mpeg',\n      fileName: `tts_${Date.now()}.mp3`,\n      fileExtension: 'mp3'\n    }\n  }\n}];"
+      },
+      "id": "process-audio",
+      "name": "Process Audio Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle API error\nconst statusCode = $json.base_resp?.status_code || 'unknown';\nconst statusMsg = $json.base_resp?.status_msg || 'Unknown error';\n\nlet errorMessage = `Minimax API Error ${statusCode}: ${statusMsg}`;\nlet suggestion = '';\n\nif (statusCode === 1008) {\n  suggestion = 'Insufficient balance. Add credits at https://platform.minimaxi.com/';\n} else if (statusCode === 1004) {\n  suggestion = 'Invalid API key or authentication failed.';\n} else if (statusCode === 1002) {\n  suggestion = 'Invalid parameters in request.';\n}\n\nreturn [{\n  json: {\n    success: false,\n    error: errorMessage,\n    suggestion: suggestion,\n    status_code: statusCode,\n    details: $json.base_resp\n  }\n}];"
+      },
+      "id": "handle-error",
+      "name": "Handle API Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 380]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 500,
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 380]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Environment Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Environment Variables": {
+      "main": [
+        [
+          {
+            "node": "Call Minimax API Directly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Minimax API Directly": {
+      "main": [
+        [
+          {
+            "node": "Check API Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check API Response": {
+      "main": [
+        [
+          {
+            "node": "Process Audio Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle API Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Audio Response": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle API Error": {
+      "main": [
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-01-14T00:00:00.000Z",
+      "updatedAt": "2025-01-14T00:00:00.000Z",
+      "id": "minimax-tts",
+      "name": "Minimax TTS"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

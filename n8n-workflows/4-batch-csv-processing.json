@@ -1,0 +1,207 @@
+{
+  "name": "Minimax TTS - Batch CSV Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "batch-tts",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-batch",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "minimax-batch-tts"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse CSV data from request body\n// Expected CSV format: text,voiceId,filename\n// Example:\n// \"Hello world\",male-qn-qingse,hello.mp3\n// \"Welcome message\",female-shaonv,welcome.mp3\n\nconst csvData = items[0].json.body.csv;\n\nif (!csvData) {\n  throw new Error('No CSV data provided. Send CSV as {\"csv\": \"text,voiceId,filename\\\\n...\"}')\n}\n\nconst lines = csvData.trim().split('\\n');\nconst results = [];\n\n// Skip header if present\nconst startIndex = lines[0].toLowerCase().includes('text') ? 1 : 0;\n\nfor (let i = startIndex; i < lines.length; i++) {\n  const line = lines[i].trim();\n  if (!line) continue;\n  \n  // Simple CSV parsing (handles quoted fields)\n  const parts = line.match(/(?:\"([^\"]*)\"|([^,]+))(?:,|$)/g);\n  \n  if (parts && parts.length >= 1) {\n    const text = parts[0].replace(/[,\"]/g, '').trim();\n    const voiceId = parts[1] ? parts[1].replace(/[,\"]/g, '').trim() : 'male-qn-qingse';\n    const filename = parts[2] ? parts[2].replace(/[,\"]/g, '').trim() : `audio_${i}.mp3`;\n    \n    results.push({\n      json: {\n        text: text,\n        voiceId: voiceId,\n        filename: filename,\n        index: i\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "id": "parse-csv",
+      "name": "Parse CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "id": "split-in-batches",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "apiKey",
+              "value": "={{ $env.MINIMAX_API_KEY }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $env.MINIMAX_GROUP_ID }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "={{ $json.voiceId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "model",
+              "value": "speech-02-hd"
+            },
+            {
+              "name": "speed",
+              "value": 1.0
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "generate-audio",
+      "name": "Generate Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Store audio as base64 with filename\nconst binaryData = items[0].binary.data;\nconst filename = $node['Split In Batches'].json.filename;\nconst text = $node['Split In Batches'].json.text;\n\nreturn [{\n  json: {\n    filename: filename,\n    text: text,\n    audio_base64: binaryData.data,\n    status: 'success'\n  }\n}];"
+      },
+      "id": "format-result",
+      "name": "Format Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate all results\nconst allItems = $input.all();\nconst results = allItems.map(item => ({\n  filename: item.json.filename,\n  text: item.json.text,\n  audio_base64: item.json.audio_base64,\n  status: item.json.status\n}));\n\nreturn [{\n  json: {\n    success: true,\n    total_files: results.length,\n    results: results,\n    message: `Successfully generated ${results.length} audio files`\n  }\n}];"
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CSV": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Generate Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio": {
+      "main": [
+        [
+          {
+            "node": "Format Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Result": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,315 +1,167 @@
-# OdeaDev‑AI‑TTS
+# MiniMax TTS - Production Voice Showcase
 
-**Production-ready Python FastAPI service** that wraps the MiniMax T2A API with your own authentication, billing tiers, and user management.
+## 🎯 **Production-Ready Voice System**
 
-## ✨ Features
-
-- ✅ **User Management** - Create users with API keys and assign billing plans
-- ✅ **Authentication** - Secure Bearer token authentication
-- ✅ **Quota Management** - Enforce usage limits per plan (free, basic, pro, enterprise)
-- ✅ **Voice Management** - Support for multiple voices (Nigerian, American, British, custom)
-- ✅ **Usage Tracking** - Log all TTS requests with success/error status
-- ✅ **MiniMax Integration** - Seamless proxy to MiniMax Speech API
-- ✅ **Auto-generated API Docs** - Interactive Swagger/OpenAPI docs at `/docs`
+This project provides a complete voice showcase using **verified voice characteristics** from the MiniMax TTS API. All voices have been tested and confirmed for production use.
 
 ---
 
-## 🚀 Quick Start
+## **Verified Voices**
 
-### 1. Install Dependencies
+### **American Voices**
+- **American Female** (`moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a`)
+  - Characteristics: American Female, Neutral
+  - Use Cases: Business communications, customer service, educational content
+  - Variations: Professional, Warm & Friendly
 
-```bash
-pip install -r requirements.txt
-```
+- **Marcus American Male** (`moss_audio_a59cd561-ab87-11f0-a74c-2a7a0b4baedc`)
+  - Characteristics: American Male, Neutral
+  - Use Cases: Corporate communications, technical documentation, leadership presentations
+  - Variations: Authoritative, Technical
 
-### 2. Configure Environment
+### **Nigerian Voices**
+- **Ezinne Nigerian Female** (`moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82`)
+  - Characteristics: Nigerian Female, Neutral
+  - Use Cases: Business communications, educational content, professional presentations
+  - Variations: Professional, Conversational
 
-Copy `.env.example` to `.env` and add your MiniMax credentials:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-```bash
-MINIMAX_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-MINIMAX_GROUP_ID=1933510987994895143
-DATABASE_URL=sqlite:///./odeadev_tts.db
-SECRET_KEY=your-secret-key-here
-```
-
-### 3. Initialize Database
-
-```bash
-python -m src.init_db
-```
-
-This creates the database tables and seeds default voices.
-
-### 4. Start the Server
-
-```bash
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-Server runs on **http://localhost:8000**
+- **Odia Nigerian Male** (`moss_audio_4e6eb029-ab89-11f0-a74c-2a7a0b4baedc`)
+  - Characteristics: Nigerian Male, Neutral
+  - Use Cases: Corporate communications, technical documentation, executive presentations
+  - Variations: Authoritative, Narrative
 
 ---
 
-## 📖 API Usage
+## **Quick Start**
 
-### View API Documentation
-
-Once running, visit:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### 1. Create a User (Admin)
-
-First, create an admin user manually by modifying the database, OR use enterprise credentials.
-
+### **Installation**
 ```bash
-curl -X POST http://localhost:8000/admin/users \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ADMIN_API_KEY" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "plan": "basic"
-  }'
+npm install
 ```
 
-**Response** (save the `api_key`!):
-```json
-{
-  "user": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "plan": "basic",
-    "quota_seconds": 3600,
-    "used_seconds": 0,
-    "remaining_seconds": 3600,
-    "quota_percentage_used": 0,
-    "is_active": true,
-    "created_at": "2025-10-12T01:00:00"
-  },
-  "api_key": "nF8x3kR2mP9vL5tQ1wY7hJ6cB4aD0sZ8eU2oK5gM3iN6pW9rT1"
-}
-```
-
-### 2. List Available Voices
-
+### **Environment Setup**
 ```bash
-curl -X GET http://localhost:8000/v1/voices \
-  -H "Authorization: Bearer nF8x3kR2mP9vL5tQ1wY7hJ6cB4aD0sZ8eU2oK5gM3iN6pW9rT1"
+export MINIMAX_API_KEY="your_api_key_here"
+export MINIMAX_GROUP_ID="your_group_id_here"
 ```
 
-**Response**:
-```json
-[
+### **Generate Voice Showcase**
+```bash
+npm run showcase
+```
+
+### **Generate CallWaiting Demo**
+```bash
+npm run callwaiting
+```
+
+---
+
+## **API Usage**
+
+### **Basic TTS Request**
+```javascript
+const response = await axios.post(
+  `https://api.minimaxi.chat/v1/t2a_v2?GroupId=${GROUP_ID}`,
   {
-    "id": 1,
-    "friendly_name": "nigerian-male",
-    "language": "en-NG",
-    "gender": "male",
-    "description": "Nigerian male voice with natural accent",
-    "is_cloned": false,
-    "is_active": true,
-    "created_at": "2025-10-12T01:00:00"
+    text: "Your text here",
+    model: "speech-02-hd",
+    voice_setting: {
+      voice_id: "moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a", // American Female
+      speed: 1.0,
+      pitch: 0,
+      emotion: "neutral",
+    },
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
   }
-]
+);
 ```
 
-### 3. Generate Speech
+### **Voice Selection Guide**
+- **Business Communications**: American Female, Marcus American Male
+- **Customer Service**: American Female (Warm & Friendly)
+- **Technical Documentation**: Marcus American Male (Technical)
+- **Nigerian Market**: Ezinne Nigerian Female, Odia Nigerian Male
+- **Narrative Content**: Odia Nigerian Male (Narrative)
+- **Conversational**: Ezinne Nigerian Female (Conversational)
 
+---
+
+## **Production Deployment**
+
+### **Render Deployment**
+1. Connect your GitHub repository to Render
+2. Set environment variables:
+   - `MINIMAX_API_KEY`
+   - `MINIMAX_GROUP_ID`
+3. Deploy automatically on push
+
+### **Docker Deployment**
 ```bash
-curl -X POST http://localhost:8000/v1/tts \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer nF8x3kR2mP9vL5tQ1wY7hJ6cB4aD0sZ8eU2oK5gM3iN6pW9rT1" \
-  -d '{
-    "text": "Hello, welcome to OdeaDev AI Text to Speech!",
-    "voice_name": "nigerian-male",
-    "model": "speech-02-turbo",
-    "speed": 1.0,
-    "pitch": 0,
-    "emotion": "neutral"
-  }' | jq -r '.audio_base64' | base64 -d > output.mp3
-```
-
-**Response**:
-```json
-{
-  "audio_base64": "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAA...",
-  "duration_seconds": 4.8,
-  "sample_rate": 32000,
-  "voice_used": "nigerian-male",
-  "text_length": 45,
-  "remaining_quota": 3595.2
-}
-```
-
-### 4. Check Your Quota
-
-```bash
-curl -X GET http://localhost:8000/v1/me \
-  -H "Authorization: Bearer nF8x3kR2mP9vL5tQ1wY7hJ6cB4aD0sZ8eU2oK5gM3iN6pW9rT1"
+docker build -t minimax-tts .
+docker run -p 10000:10000 -e MINIMAX_API_KEY=your_key minimax-tts
 ```
 
 ---
 
-## 🏗️ Project Structure
+## **File Structure**
 
 ```
-.
-├── src/
-│   ├── __init__.py
-│   ├── main.py              # FastAPI app with all endpoints
-│   ├── database.py          # SQLAlchemy database connection
-│   ├── models.py            # User, Voice, Usage models
-│   ├── schemas.py           # Pydantic request/response schemas
-│   ├── auth.py              # API key generation/hashing
-│   ├── dependencies.py      # Auth middleware
-│   ├── minimax_client.py    # MiniMax API client
-│   └── init_db.py           # Database initialization script
-├── tests/
-│   ├── test_auth.py         # Auth tests
-│   └── test_structure.py    # Structure tests
-├── .env.example             # Environment variables template
-├── .gitignore               # Protected files
-├── requirements.txt         # Python dependencies
-├── planning.md              # Implementation phases
-└── README.md                # This file
+├── src/                    # Python FastAPI backend
+│   ├── main.py            # Main application
+│   ├── models.py          # Database models
+│   ├── schemas.py         # Pydantic schemas
+│   └── minimax_client.py  # MiniMax API client
+├── generate_voice_showcase.js  # Voice showcase generator
+├── generate_callwaiting_audio.js  # CallWaiting demo
+├── package.json           # Node.js dependencies
+├── requirements.txt       # Python dependencies
+├── Dockerfile            # Docker configuration
+└── render.yaml           # Render deployment config
 ```
 
 ---
 
-## 💰 Billing Plans
+## **Voice Characteristics**
 
-| Plan | Price/month | Quota | RPM | Max Streams |
-|------|-------------|-------|-----|-------------|
-| **Free** | $0 | 600s (10 min) | 10 | 1 |
-| **Basic** | $19 | 3600s (60 min) | 30 | 2 |
-| **Pro** | $70 | 14400s (240 min) | 60 | 5 |
-| **Enterprise** | $180+ | Custom | Custom | Custom |
-
----
-
-## 🔑 Admin Operations
-
-### Create Voice
-
-```bash
-curl -X POST http://localhost:8000/admin/voices \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ADMIN_KEY" \
-  -d '{
-    "friendly_name": "custom-voice",
-    "minimax_voice_id": "voice_id_from_minimax",
-    "language": "en-US",
-    "gender": "female",
-    "description": "Custom cloned voice",
-    "is_cloned": true
-  }'
-```
-
-### Update User Quota
-
-```bash
-curl -X PUT http://localhost:8000/admin/users/1/quota \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ADMIN_KEY" \
-  -d '{
-    "used_seconds": 0
-  }'
-```
+All voices have been verified with the following characteristics:
+- **Gender**: Clearly identifiable male/female voices
+- **Accent**: American and Nigerian accents confirmed
+- **Tone**: Professional, neutral delivery
+- **Clarity**: Excellent pronunciation and enunciation
+- **Speed**: Configurable (0.5x to 2.0x)
+- **Pitch**: Configurable (-5 to +5)
+- **Emotion**: Neutral (other emotions may be available)
 
 ---
 
-## 🧪 Testing
+## **Best Practices**
 
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src tests/
-```
+1. **Use verified voice IDs only** - Don't guess or assume characteristics
+2. **Test with your content** - Verify quality with your specific text
+3. **Optimize settings** - Adjust speed and pitch for your use case
+4. **Monitor quality** - Listen to generated samples before production use
+5. **Keep backups** - Save generated audio files for reference
 
 ---
 
-## 🚀 Deployment Options
+## **Support**
 
-### Render (Recommended for Quick Start)
-```bash
-# Push to GitHub, then deploy on Render
-# Full guide: RENDER_DEPLOYMENT.md
-```
-
-**Benefits:**
-- ✅ Free tier available
-- ✅ Auto-deploy on git push
-- ✅ Managed SSL certificates
-- ✅ Built-in health checks
-- ✅ Persistent disk storage
-
-**Quick deploy:** [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
-
-### Docker / RunPod
-```bash
-# Deploy anywhere Docker runs
-docker-compose up -d
-```
-
-**Full guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
+For issues or questions:
+1. Check the generated voice samples for quality
+2. Verify your API credentials are correct
+3. Test with different voice settings
+4. Review the showcase report for detailed information
 
 ---
 
-## 🔗 Integration Examples
+## **License**
 
-### n8n Workflows
-Pre-built integration examples for:
-- 📱 WhatsApp voice messages
-- 💬 Telegram bots
-- 📧 Email to audio conversion
-- 🔄 Batch processing
-- 📊 Usage analytics
+This project is for production use with verified voice characteristics. All voice IDs have been tested and confirmed for quality and accuracy.
 
-**Full guide:** [N8N_INTEGRATION.md](N8N_INTEGRATION.md)
-
----
-
-## 📋 Project Status
-
-- [x] **Phase 1**: Project setup ✅
-- [x] **Phase 2**: Database models & auth ✅
-- [x] **Phase 3**: TTS endpoint & MiniMax integration ✅
-- [x] **Phase 4**: Voice management ✅
-- [x] **Deployment**: Render + Docker ready ✅
-- [x] **Integrations**: n8n examples ✅
-- [ ] **Phase 5**: Rate limiting (RPM enforcement)
-- [ ] **Phase 6**: Advanced logging
-- [ ] **Phase 7**: Voice cloning API
-
----
-
-## 🔒 Security Notes
-
-1. **Never commit** `.env` file with real credentials
-2. API keys are hashed in the database (SHA256)
-3. Admin endpoints require enterprise-level credentials
-4. MiniMax credentials stored in environment variables only
-
----
-
-## 📚 Resources
-
-- [MiniMax Platform](https://platform.minimaxi.com/)
-- [MiniMax API Documentation](https://platform.minimaxi.com/document)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-
----
-
-**Status**: ✅ **Core functionality complete** | Phases 1-3 implemented
-
-Add MiniMax credits and you're ready to generate speech! 🎉
+**Ready for production deployment.**

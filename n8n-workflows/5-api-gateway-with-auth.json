@@ -1,0 +1,207 @@
+{
+  "name": "Minimax TTS - API Gateway with Custom Auth",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/v1/tts",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-api",
+      "name": "Webhook API Endpoint",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "minimax-api-gateway"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Custom API Key validation and rate limiting\n// Store your customer API keys here or fetch from database\n\nconst validKeys = {\n  'customer_key_001': {\n    name: 'Customer One',\n    plan: 'basic',\n    monthlyQuota: 10000,\n    used: 0\n  },\n  'customer_key_002': {\n    name: 'Customer Two', \n    plan: 'pro',\n    monthlyQuota: 50000,\n    used: 0\n  },\n  'test_key': {\n    name: 'Test User',\n    plan: 'free',\n    monthlyQuota: 100,\n    used: 0\n  }\n};\n\nconst authHeader = items[0].json.headers.authorization;\nif (!authHeader) {\n  return [{\n    json: {\n      error: true,\n      status: 401,\n      message: 'Missing Authorization header'\n    }\n  }];\n}\n\nconst apiKey = authHeader.replace('Bearer ', '').trim();\n\nif (!validKeys[apiKey]) {\n  return [{\n    json: {\n      error: true,\n      status: 401,\n      message: 'Invalid API key'\n    }\n  }];\n}\n\nconst customer = validKeys[apiKey];\n\n// Check quota\nif (customer.used >= customer.monthlyQuota) {\n  return [{\n    json: {\n      error: true,\n      status: 429,\n      message: 'Monthly quota exceeded',\n      quota: customer.monthlyQuota,\n      used: customer.used\n    }\n  }];\n}\n\n// Extract request body\nconst body = items[0].json.body;\n\nreturn [{\n  json: {\n    valid: true,\n    customer: customer,\n    text: body.text,\n    voiceId: body.voiceId || 'male-qn-qingse',\n    model: body.model || 'speech-02-hd',\n    speed: body.speed || 1.0,\n    pitch: body.pitch || 0,\n    emotion: body.emotion || 'neutral'\n  }\n}];"
+      },
+      "id": "validate-api-key",
+      "name": "Validate API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.valid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-auth",
+      "name": "Check Auth",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "apiKey",
+              "value": "={{ $env.MINIMAX_API_KEY }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $env.MINIMAX_GROUP_ID }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "={{ $json.voiceId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.model }}"
+            },
+            {
+              "name": "speed",
+              "value": "={{ $json.speed }}"
+            },
+            {
+              "name": "pitch",
+              "value": "={{ $json.pitch }}"
+            },
+            {
+              "name": "emotion",
+              "value": "={{ $json.emotion }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "call-minimax",
+      "name": "Call Minimax TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log usage to your tracking system\nconst customer = $node['Validate API Key'].json.customer;\nconst binaryData = items[0].binary.data;\n\n// Calculate approximate duration (you'd get this from Minimax response)\nconst textLength = $node['Validate API Key'].json.text.length;\nconst estimatedDuration = Math.ceil(textLength / 10); // rough estimate\n\nreturn [{\n  json: {\n    success: true,\n    customer: customer.name,\n    plan: customer.plan,\n    audio_base64: binaryData.data,\n    duration_seconds: estimatedDuration,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "log-usage",
+      "name": "Log Usage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": "={{ $json.status || 401 }}",
+        "responseBody": "={{ { error: $json.message, status: $json.status } }}"
+      },
+      "id": "respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 380]
+    }
+  ],
+  "connections": {
+    "Webhook API Endpoint": {
+      "main": [
+        [
+          {
+            "node": "Validate API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate API Key": {
+      "main": [
+        [
+          {
+            "node": "Check Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Auth": {
+      "main": [
+        [
+          {
+            "node": "Call Minimax TTS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Minimax TTS": {
+      "main": [
+        [
+          {
+            "node": "Log Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Usage": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,183 @@
+{
+  "name": "Minimax TTS - Telegram /speak Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "telegram-minimax-tts"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse /speak command with optional voice parameter\nconst message = items[0].json.message.text;\nconst chatId = items[0].json.message.chat.id;\nconst userId = items[0].json.message.from.id;\n\n// Check if it's a speak command\nif (!message.startsWith('/speak')) {\n  return [{\n    json: {\n      error: true,\n      chatId: chatId,\n      errorMessage: 'Use /speak <text> to generate voice\\nOr:\\n/speak_cn <text> for Chinese\\n/speak_en <text> for English'\n    }\n  }];\n}\n\nlet voiceId = 'male-qn-qingse'; // Default\nlet text = '';\n\n// Parse different voice commands\nif (message.startsWith('/speak_cn')) {\n  voiceId = 'male-qn-qingse'; // Chinese male\n  text = message.replace(/^\\/speak_cn\\s*/i, '');\n} else if (message.startsWith('/speak_en')) {\n  voiceId = 'male-qn-qingse'; // English voice\n  text = message.replace(/^\\/speak_en\\s*/i, '');\n} else if (message.startsWith('/speak_female')) {\n  voiceId = 'female-shaonv'; // Female voice\n  text = message.replace(/^\\/speak_female\\s*/i, '');\n} else {\n  text = message.replace(/^\\/speak\\s*/i, '');\n}\n\nif (!text || text.length === 0) {\n  return [{\n    json: {\n      error: true,\n      chatId: chatId,\n      errorMessage: 'Please provide text: /speak Hello world'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    text: text,\n    voiceId: voiceId,\n    chatId: chatId,\n    userId: userId,\n    error: false\n  }\n}];"
+      },
+      "id": "parse-command",
+      "name": "Parse Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error }}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "check-valid-command",
+      "name": "Check Valid Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "apiKey",
+              "value": "={{ $env.MINIMAX_API_KEY }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $env.MINIMAX_GROUP_ID }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "={{ $json.voiceId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "model",
+              "value": "speech-02-hd"
+            },
+            {
+              "name": "speed",
+              "value": 1.0
+            },
+            {
+              "name": "emotion",
+              "value": "neutral"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "call-minimax-tts",
+      "name": "Call Minimax TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 220]
+    },
+    {
+      "parameters": {
+        "operation": "sendVoice",
+        "chatId": "={{ $node['Parse Command'].json.chatId }}",
+        "binaryProperty": "data",
+        "additionalFields": {
+          "caption": "🎙️ Generated with Minimax TTS"
+        }
+      },
+      "id": "send-voice-message",
+      "name": "Send Voice Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1050, 220]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.errorMessage }}",
+        "additionalFields": {}
+      },
+      "id": "send-error",
+      "name": "Send Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 380]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Command": {
+      "main": [
+        [
+          {
+            "node": "Check Valid Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Valid Command": {
+      "main": [
+        [
+          {
+            "node": "Call Minimax TTS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Minimax TTS": {
+      "main": [
+        [
+          {
+            "node": "Send Voice Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "versionId": "1"
+}

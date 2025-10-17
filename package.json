@@ -6,7 +6,9 @@
   "main": "minimax_tts.js",
   "scripts": {
     "start": "node minimax_tts.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "showcase": "node generate_voice_showcase.js",
+    "callwaiting": "node generate_callwaiting_audio.js"
   },
   "dependencies": {
     "express": "^4.18.2",

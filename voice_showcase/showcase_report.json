@@ -1,0 +1,103 @@
+{
+  "timestamp": "2025-10-17T19:03:18.132Z",
+  "totalVoices": 8,
+  "successfulGenerations": 8,
+  "voices": [
+    {
+      "name": "American Female - Professional",
+      "voiceId": "moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a",
+      "characteristics": "American Female, Neutral",
+      "filename": "voice_showcase/voice_1_american_female_-_professional.mp3",
+      "fileSize": 319149,
+      "settings": {
+        "speed": 1,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Marcus - American Male - Authoritative",
+      "voiceId": "moss_audio_a59cd561-ab87-11f0-a74c-2a7a0b4baedc",
+      "characteristics": "American Male, Neutral",
+      "filename": "voice_showcase/voice_2_marcus_-_american_male_-_authoritative.mp3",
+      "fileSize": 320877,
+      "settings": {
+        "speed": 1,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Ezinne - Nigerian Female - Professional",
+      "voiceId": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
+      "characteristics": "Nigerian Female, Neutral",
+      "filename": "voice_showcase/voice_3_ezinne_-_nigerian_female_-_professional.mp3",
+      "fileSize": 361197,
+      "settings": {
+        "speed": 1,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Odia - Nigerian Male - Authoritative",
+      "voiceId": "moss_audio_4e6eb029-ab89-11f0-a74c-2a7a0b4baedc",
+      "characteristics": "Nigerian Male, Neutral",
+      "filename": "voice_showcase/voice_4_odia_-_nigerian_male_-_authoritative.mp3",
+      "fileSize": 373293,
+      "settings": {
+        "speed": 1,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "American Female - Warm & Friendly",
+      "voiceId": "moss_audio_fdad4786-ab84-11f0-a816-023f15327f7a",
+      "characteristics": "American Female, Neutral",
+      "filename": "voice_showcase/voice_5_american_female_-_warm_&_friendly.mp3",
+      "fileSize": 288621,
+      "settings": {
+        "speed": 1.1,
+        "pitch": 1,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Marcus - American Male - Technical",
+      "voiceId": "moss_audio_a59cd561-ab87-11f0-a74c-2a7a0b4baedc",
+      "characteristics": "American Male, Neutral",
+      "filename": "voice_showcase/voice_6_marcus_-_american_male_-_technical.mp3",
+      "fileSize": 328941,
+      "settings": {
+        "speed": 0.9,
+        "pitch": -1,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Ezinne - Nigerian Female - Conversational",
+      "voiceId": "moss_audio_141d8c4c-a6f8-11f0-84c1-0ec6fa858d82",
+      "characteristics": "Nigerian Female, Neutral",
+      "filename": "voice_showcase/voice_7_ezinne_-_nigerian_female_-_conversational.mp3",
+      "fileSize": 289197,
+      "settings": {
+        "speed": 1.2,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    },
+    {
+      "name": "Odia - Nigerian Male - Narrative",
+      "voiceId": "moss_audio_4e6eb029-ab89-11f0-a74c-2a7a0b4baedc",
+      "characteristics": "Nigerian Male, Neutral",
+      "filename": "voice_showcase/voice_8_odia_-_nigerian_male_-_narrative.mp3",
+      "fileSize": 422253,
+      "settings": {
+        "speed": 0.8,
+        "pitch": 0,
+        "emotion": "neutral"
+      }
+    }
+  ]
+}
