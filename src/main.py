@@ -200,7 +200,8 @@ if app:
     @app.get("/v1/voices/list", response_model=List[Dict[str, Any]], tags=["Voices"])
     def list_voices(
         language: Optional[str] = None,
-        gender: Optional[str] = None
+        gender: Optional[str] = None,
+        user: User = Depends(get_current_user)
     ):
         """List available voices. Optionally filter by language or gender."""
         voices = VOICES_CONFIG["voices"]
